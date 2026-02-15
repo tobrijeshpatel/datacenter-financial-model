@@ -18,19 +18,20 @@ st.markdown("""
     /* Make tabs more prominent */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
-        background-color: #f0f2f6;
+        background-color: #262730;
         padding: 10px;
         border-radius: 10px;
     }
     
     .stTabs [data-baseweb="tab"] {
         height: 50px;
-        background-color: white;
+        background-color: #3d3d4a;
+        color: white;
         border-radius: 8px;
         padding: 10px 20px;
         font-weight: 600;
         font-size: 16px;
-        border: 2px solid #e0e0e0;
+        border: 2px solid #3d3d4a;
     }
     
     .stTabs [aria-selected="true"] {
@@ -42,6 +43,19 @@ st.markdown("""
     /* Mobile sidebar indicator */
     [data-testid="stSidebar"] > div:first-child {
         border-right: 3px solid #0068C9;
+    }
+    
+    /* Control panel button styling */
+    .stButton > button[kind="primary"] {
+        font-size: 16px;
+        font-weight: 600;
+        padding: 10px 20px;
+    }
+    
+    /* Sidebar header emphasis */
+    [data-testid="stSidebar"] h3 {
+        color: #0068C9;
+        font-size: 20px;
     }
     
     /* Expander styling */
@@ -94,14 +108,22 @@ def reset_to_defaults():
 
 # Title and description
 st.title("🏢 Data Center Unit Economics Model")
-st.markdown("""
-This interactive model helps you analyze the financial viability of a data center investment.
-Adjust the key assumptions in the sidebar to see real-time impact on P&L and cash flows.
-""")
+
+col_intro1, col_intro2 = st.columns([4, 1])
+with col_intro1:
+    st.markdown("""
+    This interactive model helps you analyze the financial viability of a data center investment.
+    Adjust the key assumptions in the sidebar to see real-time impact on P&L and cash flows.
+    """)
+with col_intro2:
+    st.markdown("") # Spacer
+    if st.button("⚙️ Open Control Panel", type="primary", use_container_width=True):
+        st.sidebar.success("👈 Control panel is on the left!")
+        st.rerun()
 
 # Sidebar for inputs
 st.sidebar.markdown("### 📊 Control Panel")
-st.sidebar.markdown("*Swipe from left edge to open on mobile* ☰")
+st.sidebar.info("📱 **Mobile users:** Swipe from left edge or click 'Open Control Panel' button")
 
 # Reset button at the top of sidebar
 if st.sidebar.button("🔄 Reset to Defaults", use_container_width=True, type="primary"):
@@ -110,7 +132,7 @@ if st.sidebar.button("🔄 Reset to Defaults", use_container_width=True, type="p
 st.sidebar.markdown("---")
 
 # Collapsible Section 1: Capacity & Capital
-with st.sidebar.expander("💰 **Capacity & Capital**", expanded=True):
+with st.sidebar.expander("💰 **Capacity & Capital**", expanded=False):
     capacity_gw = st.number_input(
         "Capacity (GW)",
         min_value=0.1,
@@ -144,7 +166,7 @@ with st.sidebar.expander("💰 **Capacity & Capital**", expanded=True):
     gpu_nw_pct = gpu_nw_pct_display / 100  # Convert to decimal for calculations
 
 # Collapsible Section 2: Revenue
-with st.sidebar.expander("📈 **Revenue**", expanded=True):
+with st.sidebar.expander("📈 **Revenue**", expanded=False):
     revenue_per_gw = st.number_input(
         "Revenue Rate ($ Billion per GW)",
         min_value=1.0,
@@ -449,9 +471,10 @@ with col2:
     )
 
 with col3:
+    payback_display = f"{payback_years:.1f} years" if payback_years < projection_years else f">{projection_years} years"
     st.metric(
         "Payback Period",
-        f"{payback_years:.1f} years" if payback_years < projection_years else f">{projection_years} years",
+        payback_display,
         help="Time to recover initial investment"
     )
 

@@ -13,9 +13,10 @@ st.set_page_config(
 )
 
 # Custom CSS for new layout
+# Custom CSS for new layout
 st.markdown("""
 <style>
-    /* Hide sidebar completely */
+    /* Hide sidebar */
     [data-testid="stSidebar"] {
         display: none;
     }
@@ -23,65 +24,52 @@ st.markdown("""
     /* Import Google Fonts */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
     
-    /* Global font styling */
+    /* Global font */
     html, body, [class*="css"] {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-family: 'Inter', sans-serif;
     }
     
-    /* Main container */
+    /* Main container - tighter padding */
     .main .block-container {
-        padding-top: 2rem;
+        padding-top: 1rem !important;
         padding-bottom: 2rem;
         max-width: 1200px;
     }
     
-    /* Title styling */
+    /* REMOVE ALL BORDERS GLOBALLY */
+    * {
+        border: none !important;
+    }
+    
+    /* Title */
     h1 {
         font-family: 'Inter', sans-serif;
         font-weight: 700;
         font-size: 2.5rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.25rem !important;
     }
     
-    /* Subtitle/description */
+    /* Description - reduce bottom margin */
     .main p {
         font-family: 'Inter', sans-serif;
         font-size: 1.05rem;
         line-height: 1.6;
         color: #4a5568;
+        margin-bottom: 0.25rem !important;
     }
     
-    /* Sticky KPI Table - Use sticky properly within Streamlit */
+    /* Sticky KPI Table - NO white background */
     .sticky-kpi {
         position: -webkit-sticky;
         position: sticky;
         top: 3.5rem;
         z-index: 998;
-        background: white;
-        padding: 0.5rem 0;
-        margin: 0 0 1rem 0;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        background: transparent !important;
+        padding: 0 !important;
+        margin: 0.5rem 0 1rem 0 !important;
     }
     
-    /* Dark mode */
-    [data-testid="stAppViewContainer"][data-theme="dark"] .sticky-kpi {
-        background: #0e1117;
-        box-shadow: 0 4px 6px rgba(255,255,255,0.1);
-    }
-    
-    /* Ensure parent allows sticking */
-    .main .block-container {
-        position: relative;
-        overflow: visible !important;
-    }
-    
-    /* KPI table wrapper */
-    .kpi-table-wrapper {
-        width: 100%;
-        max-width: 100%;
-    }
-    
-    /* KPI Table styling */
+    /* KPI Table */
     .kpi-table {
         width: 100%;
         border-collapse: collapse;
@@ -101,7 +89,6 @@ st.markdown("""
         text-align: center;
         color: white;
         background: rgba(255, 255, 255, 0.1);
-        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
     }
     
     .kpi-table td {
@@ -113,8 +100,129 @@ st.markdown("""
         color: white;
     }
     
-    /* Mobile responsive KPI table */
+    /* Tab list - DARK background */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background-color: #1a1a1a !important;
+        padding: 10px;
+        border-radius: 10px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        background-color: #2d2d2d !important;
+        color: #b0b0b0 !important;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 16px;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+    }
+    
+    /* Tab panel - DARK background */
+    .stTabs [data-baseweb="tab-panel"] {
+        padding: 2rem 1rem !important;
+        background-color: #1a1a1a !important;
+        border-radius: 0 0 10px 10px;
+    }
+    
+    /* Remove all white from inside tabs */
+    .stTabs [data-baseweb="tab-panel"] > div,
+    .stTabs [data-baseweb="tab-panel"] > div > div {
+        background-color: transparent !important;
+        padding: 0 !important;
+    }
+    
+    /* Dataframes - dark theme, NO white borders */
+    [data-testid="stDataFrame"],
+    [data-testid="stDataFrame"] > div {
+        background-color: transparent !important;
+    }
+    
+    [data-testid="stDataFrame"] table {
+        background-color: #2d2d2d !important;
+        color: white !important;
+        width: 100% !important;
+    }
+    
+    [data-testid="stDataFrame"] th {
+        background-color: #3d3d3d !important;
+        color: white !important;
+        padding: 0.75rem !important;
+    }
+    
+    [data-testid="stDataFrame"] td {
+        background-color: #2d2d2d !important;
+        color: white !important;
+        padding: 0.75rem !important;
+    }
+    
+    /* Charts - NO white backgrounds or borders */
+    .js-plotly-plot,
+    .plotly,
+    .plot-container,
+    .user-select-none {
+        background-color: transparent !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Force Plotly charts to be transparent */
+    .js-plotly-plot .plotly,
+    .js-plotly-plot .plotly .main-svg,
+    .js-plotly-plot .svg-container {
+        background-color: transparent !important;
+    }
+    
+    /* Text on dark backgrounds */
+    .stTabs [data-baseweb="tab-panel"] h1,
+    .stTabs [data-baseweb="tab-panel"] h2,
+    .stTabs [data-baseweb="tab-panel"] h3,
+    .stTabs [data-baseweb="tab-panel"] h4,
+    .stTabs [data-baseweb="tab-panel"] p,
+    .stTabs [data-baseweb="tab-panel"] span,
+    .stTabs [data-baseweb="tab-panel"] div {
+        color: white !important;
+    }
+    
+    /* Expanders - no borders */
+    .streamlit-expanderHeader {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 1.1rem;
+        background-color: transparent;
+    }
+    
+    [data-testid="stExpander"] {
+        background-color: transparent;
+        margin-bottom: 1rem;
+    }
+    
+    /* Sliders - purple theme */
+    .stSlider > div > div > div > div {
+        background-color: #667eea;
+    }
+    
+    .stSlider > div > div > div {
+        background-color: rgba(102, 126, 234, 0.2);
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    /* Mobile */
     @media (max-width: 768px) {
+        .main .block-container {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
         .kpi-table th {
             font-size: 0.75rem;
             padding: 0.6rem 0.3rem;
@@ -124,186 +232,14 @@ st.markdown("""
             font-size: 1.3rem;
             padding: 0.8rem 0.3rem;
         }
-    }
-    
-    /* Section headers */
-    h2 {
-        font-family: 'Inter', sans-serif;
-        font-weight: 700;
-        font-size: 1.8rem;
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-    }
-    
-    h3 {
-        font-family: 'Inter', sans-serif;
-        font-weight: 600;
-        font-size: 1.3rem;
-    }
-    
-    /* Tab styling - purple theme */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background-color: #f7f7f7;
-        padding: 10px;
-        border-radius: 10px;
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        background-color: #e9e9f0;
-        color: #4a4a6a;
-        border-radius: 8px;
-        padding: 10px 20px;
-        font-family: 'Inter', sans-serif;
-        font-weight: 600;
-        font-size: 16px;
-        border: 2px solid #e9e9f0;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: 2px solid #667eea;
-    }
-    
-    /* Tab panel content - dark background */
-    .stTabs [data-baseweb="tab-panel"] {
-        padding: 1.5rem;
-        background-color: #1a1a1a;
-        border-radius: 0 0 10px 10px;
-        margin-top: -2px;
-    }
-    
-    /* Remove extra margins/padding */
-    .stTabs [data-baseweb="tab-panel"] > div {
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-    
-    /* Dataframe styling - clean cards on dark background */
-    [data-testid="stDataFrame"] {
-        border-radius: 8px;
-        overflow: hidden;
-        background-color: white;
-    }
-    
-    /* Chart containers */
-    .js-plotly-plot, .plotly {
-        background-color: white;
-        border-radius: 8px;
-        padding: 1rem;
-    }
-    
-    /* Text on dark background should be light */
-    .stTabs [data-baseweb="tab-panel"] h3,
-    .stTabs [data-baseweb="tab-panel"] p,
-    .stTabs [data-baseweb="tab-panel"] .markdown-text-container {
-        color: white !important;
-    }
-    
-    /* Smooth scrolling */
-    html {
-        scroll-behavior: smooth;
-        scroll-padding-top: 200px;
-    }
-    
-    /* Expander styling - transparent background */
-    .streamlit-expanderHeader {
-        font-family: 'Inter', sans-serif;
-        font-weight: 600;
-        font-size: 1.1rem;
-        background-color: transparent;
-        border-radius: 8px;
-        padding: 12px;
-        color: #2d3748;
-    }
-    
-    [data-testid="stExpander"] {
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        margin-bottom: 1rem;
-        background-color: transparent;
-    }
-    
-    /* Expander content background */
-    [data-testid="stExpander"] > div > div {
-        background-color: transparent;
-    }
-    
-    /* Slider styling - purple theme */
-    .stSlider > div > div > div > div {
-        background-color: #667eea;
-    }
-    
-    .stSlider > div > div > div {
-        background-color: rgba(102, 126, 234, 0.2);
-    }
-    
-    /* Slider thumb */
-    input[type="range"]::-webkit-slider-thumb {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    input[type="range"]::-moz-range-thumb {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    /* Input labels */
-    label {
-        font-family: 'Inter', sans-serif;
-        font-weight: 500;
-        font-size: 0.95rem;
-    }
-    
-    /* Reset button styling */
-    .stButton > button {
-        font-family: 'Inter', sans-serif;
-        font-weight: 600;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-    
-    .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    
-    /* Mobile optimizations */
-    @media (max-width: 768px) {
-        .main .block-container {
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-        
-        h1 {
-            font-size: 1.8rem;
-        }
-        
-        h2 {
-            font-size: 1.4rem;
-        }
         
         .stTabs [data-baseweb="tab"] {
             font-size: 14px;
             padding: 8px 12px;
         }
-        
-        /* Ensure header table stays in one row */
-        table td {
-            display: table-cell !important;
-        }
-        
-        /* Adjust button on mobile */
-        table td button {
-            font-size: 0.85rem !important;
-            padding: 0.6rem 1rem !important;
-            min-width: 140px !important;
-        }
     }
 </style>
 """, unsafe_allow_html=True)
-
 # Initialize session state for default values
 if 'defaults' not in st.session_state:
     st.session_state.defaults = {

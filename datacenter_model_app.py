@@ -8,8 +8,89 @@ import plotly.express as px
 st.set_page_config(
     page_title="Data Center Financial Model",
     page_icon="🏢",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
+
+# Custom CSS for better UI
+st.markdown("""
+<style>
+    /* Make tabs more prominent */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background-color: #f0f2f6;
+        padding: 10px;
+        border-radius: 10px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        background-color: white;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        font-size: 16px;
+        border: 2px solid #e0e0e0;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background-color: #0068C9;
+        color: white;
+        border: 2px solid #0068C9;
+    }
+    
+    /* Mobile sidebar indicator */
+    [data-testid="stSidebar"] > div:first-child {
+        border-right: 3px solid #0068C9;
+    }
+    
+    /* Expander styling */
+    .streamlit-expanderHeader {
+        font-weight: 600;
+        font-size: 16px;
+        background-color: #f0f2f6;
+        border-radius: 5px;
+    }
+    
+    /* Reset button styling */
+    .reset-button {
+        margin-bottom: 20px;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Initialize session state for default values
+if 'defaults' not in st.session_state:
+    st.session_state.defaults = {
+        'capacity_gw': 1.0,
+        'capital_cost_per_gw': 30.0,
+        'gpu_nw_pct': 70,  # Store as percentage for display
+        'revenue_per_gw': 12.0,
+        'utilization': 70,  # Store as percentage
+        'power_cost_per_kwh': 0.05,
+        'pue': 1.2,
+        'baseline_power': 20,  # Store as percentage
+        'idle_power': 40,  # Store as percentage
+        'sga_pct': 10,  # Store as percentage
+        'infra_maintenance': 0.1,
+        'property_tax_rate': 0.7,  # Store as percentage
+        'staffing_cost': 0.05,
+        'network_cost': 0.05,
+        'software_compliance': 0.03,
+        'depreciation_gpu_nw': 5,
+        'depreciation_other': 10,
+        'tax_rate': 15,  # Store as percentage
+        'projection_years': 10
+    }
+
+# Initialize current values from defaults if not set
+if 'current_values' not in st.session_state:
+    st.session_state.current_values = st.session_state.defaults.copy()
+
+# Function to reset to defaults
+def reset_to_defaults():
+    st.session_state.current_values = st.session_state.defaults.copy()
+    st.rerun()
 
 # Title and description
 st.title("🏢 Data Center Unit Economics Model")
@@ -19,195 +100,250 @@ Adjust the key assumptions in the sidebar to see real-time impact on P&L and cas
 """)
 
 # Sidebar for inputs
-st.sidebar.header("📊 Key Assumptions")
+st.sidebar.markdown("### 📊 Control Panel")
+st.sidebar.markdown("*Swipe from left edge to open on mobile* ☰")
 
-# Capacity and Capital
-st.sidebar.subheader("Capacity & Capital")
-capacity_gw = st.sidebar.number_input(
-    "Capacity (GW)",
-    min_value=0.1,
-    max_value=10.0,
-    value=1.0,
-    step=0.1,
-    help="Total compute capacity in gigawatts"
-)
+# Reset button at the top of sidebar
+if st.sidebar.button("🔄 Reset to Defaults", use_container_width=True, type="primary"):
+    reset_to_defaults()
 
-capital_cost_per_gw = st.sidebar.number_input(
-    "Capital Cost ($ Billion per GW)",
-    min_value=1.0,
-    max_value=100.0,
-    value=30.0,
-    step=1.0,
-    help="Total capital investment per GW of capacity"
-)
+st.sidebar.markdown("---")
 
-gpu_nw_pct = st.sidebar.slider(
-    "GPU & Network Equipment (% of CapEx)",
-    min_value=0.0,
-    max_value=1.0,
-    value=0.7,
-    step=0.05,
-    format="%.0f%%",
-    help="Percentage of capital cost allocated to GPU and network equipment"
-)
+# Collapsible Section 1: Capacity & Capital
+with st.sidebar.expander("💰 **Capacity & Capital**", expanded=True):
+    capacity_gw = st.number_input(
+        "Capacity (GW)",
+        min_value=0.1,
+        max_value=10.0,
+        value=st.session_state.current_values['capacity_gw'],
+        step=0.1,
+        help="Total compute capacity in gigawatts",
+        key="capacity_gw_input"
+    )
+    
+    capital_cost_per_gw = st.number_input(
+        "Capital Cost ($ Billion per GW)",
+        min_value=1.0,
+        max_value=100.0,
+        value=st.session_state.current_values['capital_cost_per_gw'],
+        step=1.0,
+        help="Total capital investment per GW of capacity",
+        key="capital_cost_input"
+    )
+    
+    gpu_nw_pct_display = st.slider(
+        "GPU & Network Equipment",
+        min_value=0,
+        max_value=100,
+        value=st.session_state.current_values['gpu_nw_pct'],
+        step=5,
+        format="%d%%",
+        help="Percentage of capital cost allocated to GPU and network equipment",
+        key="gpu_nw_input"
+    )
+    gpu_nw_pct = gpu_nw_pct_display / 100  # Convert to decimal for calculations
 
-# Revenue
-st.sidebar.subheader("Revenue")
-revenue_per_gw = st.sidebar.number_input(
-    "Revenue Rate ($ Billion per GW)",
-    min_value=1.0,
-    max_value=50.0,
-    value=12.0,
-    step=0.5,
-    help="Annual revenue per GW of capacity"
-)
+# Collapsible Section 2: Revenue
+with st.sidebar.expander("📈 **Revenue**", expanded=True):
+    revenue_per_gw = st.number_input(
+        "Revenue Rate ($ Billion per GW)",
+        min_value=1.0,
+        max_value=50.0,
+        value=st.session_state.current_values['revenue_per_gw'],
+        step=0.5,
+        help="Annual revenue per GW of capacity",
+        key="revenue_input"
+    )
+    
+    utilization_display = st.slider(
+        "Utilization Rate",
+        min_value=0,
+        max_value=100,
+        value=st.session_state.current_values['utilization'],
+        step=5,
+        format="%d%%",
+        help="Expected capacity utilization",
+        key="utilization_input"
+    )
+    utilization = utilization_display / 100  # Convert to decimal
 
-utilization = st.sidebar.slider(
-    "Utilization Rate (%)",
-    min_value=0.0,
-    max_value=1.0,
-    value=0.7,
-    step=0.05,
-    format="%.0f%%",
-    help="Expected capacity utilization"
-)
+# Collapsible Section 3: Operating Costs
+with st.sidebar.expander("⚡ **Operating Costs**", expanded=False):
+    power_cost_per_kwh = st.number_input(
+        "Power Cost ($ per kWh)",
+        min_value=0.01,
+        max_value=0.20,
+        value=st.session_state.current_values['power_cost_per_kwh'],
+        step=0.005,
+        format="%.3f",
+        help="Cost of electricity per kilowatt-hour",
+        key="power_cost_input"
+    )
+    
+    pue = st.number_input(
+        "PUE (Power Usage Effectiveness)",
+        min_value=1.0,
+        max_value=2.0,
+        value=st.session_state.current_values['pue'],
+        step=0.1,
+        help="Ratio of total facility energy to IT equipment energy",
+        key="pue_input"
+    )
+    
+    baseline_power_display = st.slider(
+        "Baseline Power",
+        min_value=0,
+        max_value=50,
+        value=st.session_state.current_values['baseline_power'],
+        step=5,
+        format="%d%%",
+        help="Power consumption when idle",
+        key="baseline_power_input"
+    )
+    baseline_power = baseline_power_display / 100
+    
+    idle_power_display = st.slider(
+        "Idle Power Factor",
+        min_value=0,
+        max_value=100,
+        value=st.session_state.current_values['idle_power'],
+        step=5,
+        format="%d%%",
+        help="Power factor for unused capacity",
+        key="idle_power_input"
+    )
+    idle_power = idle_power_display / 100
+    
+    sga_pct_display = st.slider(
+        "SG&A (% of Revenue)",
+        min_value=0,
+        max_value=30,
+        value=st.session_state.current_values['sga_pct'],
+        step=1,
+        format="%d%%",
+        help="Selling, general & administrative expenses",
+        key="sga_input"
+    )
+    sga_pct = sga_pct_display / 100
+    
+    infra_maintenance = st.number_input(
+        "Infrastructure Maintenance ($ Billion per GW)",
+        min_value=0.01,
+        max_value=1.0,
+        value=st.session_state.current_values['infra_maintenance'],
+        step=0.01,
+        help="Annual maintenance costs",
+        key="maintenance_input"
+    )
+    
+    property_tax_rate_display = st.slider(
+        "Property Tax Rate",
+        min_value=0.0,
+        max_value=3.0,
+        value=st.session_state.current_values['property_tax_rate'],
+        step=0.1,
+        format="%.1f%%",
+        help="Annual property tax as % of property value",
+        key="property_tax_input"
+    )
+    property_tax_rate = property_tax_rate_display / 100
+    
+    staffing_cost = st.number_input(
+        "Staffing ($ Billion per GW)",
+        min_value=0.01,
+        max_value=0.5,
+        value=st.session_state.current_values['staffing_cost'],
+        step=0.01,
+        help="Annual staffing costs",
+        key="staffing_input"
+    )
+    
+    network_cost = st.number_input(
+        "Network ($ Billion per GW)",
+        min_value=0.01,
+        max_value=0.5,
+        value=st.session_state.current_values['network_cost'],
+        step=0.01,
+        help="Annual network costs",
+        key="network_input"
+    )
+    
+    software_compliance = st.number_input(
+        "Software & Compliance ($ Billion per GW)",
+        min_value=0.01,
+        max_value=0.2,
+        value=st.session_state.current_values['software_compliance'],
+        step=0.01,
+        help="Annual software and compliance costs",
+        key="software_input"
+    )
 
-# Operating Costs
-st.sidebar.subheader("Operating Costs")
-power_cost_per_kwh = st.sidebar.number_input(
-    "Power Cost ($ per kWh)",
-    min_value=0.01,
-    max_value=0.20,
-    value=0.05,
-    step=0.005,
-    format="%.3f",
-    help="Cost of electricity per kilowatt-hour"
-)
+# Collapsible Section 4: Depreciation & Tax
+with st.sidebar.expander("📉 **Depreciation & Tax**", expanded=False):
+    depreciation_gpu_nw = st.number_input(
+        "GPU & Network Depreciation (years)",
+        min_value=1,
+        max_value=15,
+        value=st.session_state.current_values['depreciation_gpu_nw'],
+        step=1,
+        help="Useful life for GPU and network equipment",
+        key="dep_gpu_input"
+    )
+    
+    depreciation_other = st.number_input(
+        "Other Assets Depreciation (years)",
+        min_value=1,
+        max_value=30,
+        value=st.session_state.current_values['depreciation_other'],
+        step=1,
+        help="Useful life for buildings and infrastructure",
+        key="dep_other_input"
+    )
+    
+    tax_rate_display = st.slider(
+        "Tax Rate",
+        min_value=0,
+        max_value=50,
+        value=st.session_state.current_values['tax_rate'],
+        step=1,
+        format="%d%%",
+        help="Corporate tax rate",
+        key="tax_rate_input"
+    )
+    tax_rate = tax_rate_display / 100
+    
+    projection_years = st.number_input(
+        "Projection Years",
+        min_value=5,
+        max_value=20,
+        value=st.session_state.current_values['projection_years'],
+        step=1,
+        help="Number of years to project cash flows",
+        key="projection_input"
+    )
 
-pue = st.sidebar.number_input(
-    "PUE (Power Usage Effectiveness)",
-    min_value=1.0,
-    max_value=2.0,
-    value=1.2,
-    step=0.1,
-    help="Ratio of total facility energy to IT equipment energy"
-)
-
-baseline_power = st.sidebar.slider(
-    "Baseline Power (% of capacity)",
-    min_value=0.0,
-    max_value=0.5,
-    value=0.2,
-    step=0.05,
-    format="%.0f%%",
-    help="Power consumption when idle"
-)
-
-idle_power = st.sidebar.slider(
-    "Idle Power Factor",
-    min_value=0.0,
-    max_value=1.0,
-    value=0.4,
-    step=0.05,
-    format="%.0f%%",
-    help="Power factor for unused capacity"
-)
-
-sga_pct = st.sidebar.slider(
-    "SG&A (% of Revenue)",
-    min_value=0.0,
-    max_value=0.3,
-    value=0.1,
-    step=0.01,
-    format="%.0f%%",
-    help="Selling, general & administrative expenses"
-)
-
-infra_maintenance = st.sidebar.number_input(
-    "Infrastructure Maintenance ($ Billion per GW)",
-    min_value=0.01,
-    max_value=1.0,
-    value=0.1,
-    step=0.01,
-    help="Annual maintenance costs"
-)
-
-property_tax_rate = st.sidebar.slider(
-    "Property Tax Rate (%)",
-    min_value=0.0,
-    max_value=0.03,
-    value=0.007,
-    step=0.001,
-    format="%.1f%%",
-    help="Annual property tax as % of property value"
-)
-
-staffing_cost = st.sidebar.number_input(
-    "Staffing ($ Billion per GW)",
-    min_value=0.01,
-    max_value=0.5,
-    value=0.05,
-    step=0.01,
-    help="Annual staffing costs"
-)
-
-network_cost = st.sidebar.number_input(
-    "Network ($ Billion per GW)",
-    min_value=0.01,
-    max_value=0.5,
-    value=0.05,
-    step=0.01,
-    help="Annual network costs"
-)
-
-software_compliance = st.sidebar.number_input(
-    "Software & Compliance ($ Billion per GW)",
-    min_value=0.01,
-    max_value=0.2,
-    value=0.03,
-    step=0.01,
-    help="Annual software and compliance costs"
-)
-
-# Depreciation and Tax
-st.sidebar.subheader("Depreciation & Tax")
-depreciation_gpu_nw = st.sidebar.number_input(
-    "GPU & Network Depreciation (years)",
-    min_value=1,
-    max_value=15,
-    value=5,
-    step=1,
-    help="Useful life for GPU and network equipment"
-)
-
-depreciation_other = st.sidebar.number_input(
-    "Other Assets Depreciation (years)",
-    min_value=1,
-    max_value=30,
-    value=10,
-    step=1,
-    help="Useful life for buildings and infrastructure"
-)
-
-tax_rate = st.sidebar.slider(
-    "Tax Rate (%)",
-    min_value=0.0,
-    max_value=0.5,
-    value=0.15,
-    step=0.01,
-    format="%.0f%%",
-    help="Corporate tax rate"
-)
-
-# Projection years
-projection_years = st.sidebar.number_input(
-    "Projection Years",
-    min_value=5,
-    max_value=20,
-    value=10,
-    step=1,
-    help="Number of years to project cash flows"
-)
+# Update session state with current values
+st.session_state.current_values.update({
+    'capacity_gw': capacity_gw,
+    'capital_cost_per_gw': capital_cost_per_gw,
+    'gpu_nw_pct': gpu_nw_pct_display,
+    'revenue_per_gw': revenue_per_gw,
+    'utilization': utilization_display,
+    'power_cost_per_kwh': power_cost_per_kwh,
+    'pue': pue,
+    'baseline_power': baseline_power_display,
+    'idle_power': idle_power_display,
+    'sga_pct': sga_pct_display,
+    'infra_maintenance': infra_maintenance,
+    'property_tax_rate': property_tax_rate_display,
+    'staffing_cost': staffing_cost,
+    'network_cost': network_cost,
+    'software_compliance': software_compliance,
+    'depreciation_gpu_nw': depreciation_gpu_nw,
+    'depreciation_other': depreciation_other,
+    'tax_rate': tax_rate_display,
+    'projection_years': projection_years
+})
 
 # Calculate P&L
 def calculate_pnl(capacity_gw, revenue_per_gw, utilization, power_cost_per_kwh, pue, 
@@ -219,8 +355,7 @@ def calculate_pnl(capacity_gw, revenue_per_gw, utilization, power_cost_per_kwh, 
     revenue = revenue_per_gw * utilization * capacity_gw
     
     # Power costs (in billions)
-    # Base electricity cost per GW at given power cost
-    electricity_base = 0.438 * (power_cost_per_kwh / 0.05)  # Scale from baseline
+    electricity_base = 0.438 * (power_cost_per_kwh / 0.05)
     
     power_active = pue * utilization * capacity_gw * electricity_base
     power_idle_cost = idle_power * (1 - utilization) * capacity_gw * pue * electricity_base
@@ -231,7 +366,7 @@ def calculate_pnl(capacity_gw, revenue_per_gw, utilization, power_cost_per_kwh, 
     # SG&A
     sga = sga_pct * revenue
     
-    # Other Opex (excluding property tax which is calculated separately)
+    # Other Opex
     other_opex = (infra_maintenance + staffing_cost + network_cost + software_compliance) * capacity_gw
     
     # Property tax
@@ -283,7 +418,7 @@ def calculate_cash_flows(pnl_dict, capital_cost_per_gw, capacity_gw, tax_rate, y
             break
     
     if payback_years is None:
-        payback_years = years  # Doesn't pay back within projection period
+        payback_years = years
     
     return cash_flows, cumulative_cf, payback_years, operating_cf
 
@@ -296,7 +431,7 @@ pnl = calculate_pnl(capacity_gw, revenue_per_gw, utilization, power_cost_per_kwh
 cash_flows, cumulative_cf, payback_years, operating_cf = calculate_cash_flows(
     pnl, capital_cost_per_gw, capacity_gw, tax_rate, projection_years)
 
-# Main content area
+# Main content area - KPI metrics
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
@@ -327,8 +462,15 @@ with col4:
         help="Annual operating cash flow (EBIT after tax + depreciation)"
     )
 
-# Create tabs for different views
-tab1, tab2, tab3 = st.tabs(["📊 P&L Analysis", "💰 Cash Flow Projection", "📈 Summary Metrics"])
+st.markdown("---")
+
+# Create tabs with better visibility
+tab1, tab2, tab3, tab4 = st.tabs([
+    "📊 P&L Analysis", 
+    "💰 Cash Flow Projection", 
+    "📋 Assumptions Summary",
+    "📈 Executive Summary"
+])
 
 with tab1:
     st.subheader("Profit & Loss Statement")
@@ -440,7 +582,7 @@ with tab2:
     # Add zero line
     fig_cf.add_hline(y=0, line_dash="dash", line_color="red", opacity=0.5)
     
-    # Add payback period annotation if within projection period
+    # Add payback period annotation
     if payback_years <= projection_years:
         fig_cf.add_vline(
             x=payback_years,
@@ -476,6 +618,91 @@ with tab2:
         st.warning("Unable to calculate IRR with current assumptions")
 
 with tab3:
+    st.subheader("Current Assumptions Summary")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("#### 💰 Capacity & Capital")
+        assumptions_df1 = pd.DataFrame({
+            'Parameter': [
+                'Capacity',
+                'Capital Cost per GW',
+                'GPU & Network Equipment',
+                'Total Investment'
+            ],
+            'Value': [
+                f"{capacity_gw:.2f} GW",
+                f"${capital_cost_per_gw:.1f}B",
+                f"{gpu_nw_pct_display}%",
+                f"${capital_cost_per_gw * capacity_gw:.2f}B"
+            ]
+        })
+        st.dataframe(assumptions_df1, use_container_width=True, hide_index=True)
+        
+        st.markdown("#### 📈 Revenue")
+        assumptions_df2 = pd.DataFrame({
+            'Parameter': [
+                'Revenue Rate per GW',
+                'Utilization Rate',
+                'Annual Revenue'
+            ],
+            'Value': [
+                f"${revenue_per_gw:.1f}B",
+                f"{utilization_display}%",
+                f"${pnl['Revenue']:.2f}B"
+            ]
+        })
+        st.dataframe(assumptions_df2, use_container_width=True, hide_index=True)
+    
+    with col2:
+        st.markdown("#### ⚡ Operating Costs")
+        assumptions_df3 = pd.DataFrame({
+            'Parameter': [
+                'Power Cost per kWh',
+                'PUE',
+                'Baseline Power',
+                'Idle Power',
+                'SG&A',
+                'Maintenance per GW',
+                'Property Tax Rate',
+                'Staffing per GW',
+                'Network per GW',
+                'Software & Compliance'
+            ],
+            'Value': [
+                f"${power_cost_per_kwh:.3f}",
+                f"{pue:.1f}",
+                f"{baseline_power_display}%",
+                f"{idle_power_display}%",
+                f"{sga_pct_display}% of revenue",
+                f"${infra_maintenance:.2f}B",
+                f"{property_tax_rate_display:.1f}%",
+                f"${staffing_cost:.2f}B",
+                f"${network_cost:.2f}B",
+                f"${software_compliance:.2f}B"
+            ]
+        })
+        st.dataframe(assumptions_df3, use_container_width=True, hide_index=True)
+        
+        st.markdown("#### 📉 Depreciation & Tax")
+        assumptions_df4 = pd.DataFrame({
+            'Parameter': [
+                'GPU & Network Depreciation',
+                'Other Assets Depreciation',
+                'Tax Rate',
+                'Projection Years'
+            ],
+            'Value': [
+                f"{depreciation_gpu_nw} years",
+                f"{depreciation_other} years",
+                f"{tax_rate_display}%",
+                f"{projection_years} years"
+            ]
+        })
+        st.dataframe(assumptions_df4, use_container_width=True, hide_index=True)
+
+with tab4:
     st.subheader("Executive Summary")
     
     col1, col2 = st.columns(2)
@@ -485,7 +712,7 @@ with tab3:
         st.markdown(f"""
         - **Total Investment:** ${capital_cost_per_gw * capacity_gw:.2f}B
         - **Capacity:** {capacity_gw:.2f} GW
-        - **Utilization:** {utilization*100:.0f}%
+        - **Utilization:** {utilization_display}%
         - **Revenue per GW:** ${revenue_per_gw:.2f}B
         """)
         
@@ -499,7 +726,6 @@ with tab3:
     
     with col2:
         st.markdown("### Cost Structure")
-        total_opex = pnl['Power Cost'] + pnl['SG&A'] + pnl['Other Opex'] + pnl['Property Tax']
         st.markdown(f"""
         - **Power Cost:** ${pnl['Power Cost']:.2f}B ({pnl['Power Cost']/pnl['Revenue']*100:.1f}% of revenue)
         - **SG&A:** ${pnl['SG&A']:.2f}B ({pnl['SG&A']/pnl['Revenue']*100:.1f}% of revenue)
@@ -574,5 +800,6 @@ st.markdown("""
 <div style='text-align: center; color: gray; padding: 20px;'>
     <p>Data Center Financial Model | Built with Streamlit</p>
     <p style='font-size: 12px;'>Adjust assumptions in the sidebar to explore different scenarios</p>
+    <p style='font-size: 12px;'>💡 Tip: Click the tabs above to explore different views</p>
 </div>
 """, unsafe_allow_html=True)

@@ -20,6 +20,14 @@ st.markdown("""
         display: none;
     }
     
+    /* Import Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    
+    /* Global font styling */
+    html, body, [class*="css"] {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    
     /* Main container */
     .main .block-container {
         padding-top: 2rem;
@@ -27,20 +35,98 @@ st.markdown("""
         max-width: 1200px;
     }
     
-    /* Sticky KPI section */
+    /* Title styling */
+    h1 {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Subtitle/description */
+    .main p {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        color: #4a5568;
+    }
+    
+    /* Sticky KPI Table */
     .sticky-kpi {
         position: sticky;
         top: 0;
         background-color: white;
         z-index: 999;
-        padding: 1rem 0;
-        margin-bottom: 1rem;
-        border-bottom: 2px solid #f0f2f6;
+        padding: 1.5rem 0;
+        margin: 2rem 0 2rem 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-radius: 12px;
     }
     
     /* Dark mode support for sticky KPI */
     [data-testid="stAppViewContainer"][data-theme="dark"] .sticky-kpi {
         background-color: #0e1117;
+        box-shadow: 0 2px 8px rgba(255,255,255,0.1);
+    }
+    
+    /* KPI Table styling */
+    .kpi-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .kpi-table th {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+        text-align: center;
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .kpi-table td {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 1.8rem;
+        padding: 1.2rem;
+        text-align: center;
+        color: white;
+    }
+    
+    /* Mobile responsive KPI table */
+    @media (max-width: 768px) {
+        .kpi-table th {
+            font-size: 0.75rem;
+            padding: 0.6rem 0.3rem;
+        }
+        
+        .kpi-table td {
+            font-size: 1.3rem;
+            padding: 0.8rem 0.3rem;
+        }
+    }
+    
+    /* Section headers */
+    h2 {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    h3 {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 1.3rem;
     }
     
     /* Tab styling - dark grey theme */
@@ -57,6 +143,7 @@ st.markdown("""
         color: white;
         border-radius: 8px;
         padding: 10px 20px;
+        font-family: 'Inter', sans-serif;
         font-weight: 600;
         font-size: 16px;
         border: 2px solid #3d3d4a;
@@ -70,36 +157,39 @@ st.markdown("""
     
     /* Expander styling */
     .streamlit-expanderHeader {
+        font-family: 'Inter', sans-serif;
         font-weight: 600;
-        font-size: 18px;
-        background-color: #f0f2f6;
+        font-size: 1.1rem;
+        background-color: #f7fafc;
         border-radius: 8px;
         padding: 12px;
     }
     
     [data-testid="stExpander"] {
-        border: 1px solid #e0e0e0;
+        border: 1px solid #e2e8f0;
         border-radius: 10px;
         margin-bottom: 1rem;
+        background-color: white;
     }
     
-    /* Control panel container */
-    .control-panel {
-        background-color: #fafafa;
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin-bottom: 2rem;
+    /* Input labels */
+    label {
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        font-size: 0.95rem;
     }
     
     /* Reset button styling */
     .stButton > button {
+        font-family: 'Inter', sans-serif;
         font-weight: 600;
         border-radius: 8px;
+        transition: all 0.3s ease;
     }
     
-    /* Metric cards */
-    [data-testid="stMetricValue"] {
-        font-size: 1.8rem;
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     
     /* Mobile optimizations */
@@ -109,7 +199,11 @@ st.markdown("""
             padding-right: 1rem;
         }
         
-        [data-testid="stMetricValue"] {
+        h1 {
+            font-size: 1.8rem;
+        }
+        
+        h2 {
             font-size: 1.4rem;
         }
         
@@ -161,8 +255,6 @@ st.markdown("""
 Analyze the financial viability of AI infrastructure investments with real-time P&L, 
 cash flow projections, and payback calculations.
 """)
-
-st.markdown("---")
 
 # Get all input values
 capacity_gw = st.session_state.capacity_gw
@@ -269,47 +361,37 @@ pnl = calculate_pnl(capacity_gw, revenue_per_gw, utilization, power_cost_per_kwh
 cash_flows, cumulative_cf, payback_years, operating_cf = calculate_cash_flows(
     pnl, capital_cost_per_gw, capacity_gw, tax_rate, projection_years)
 
-# STICKY KPI SECTION
+# STICKY KPI TABLE
 st.markdown('<div class="sticky-kpi">', unsafe_allow_html=True)
-kpi1, kpi2, kpi3, kpi4 = st.columns(4)
 
-with kpi1:
-    st.metric(
-        "Revenue",
-        f"${pnl['Revenue']:.1f}B",
-        help="Annual revenue"
-    )
+# Create KPI table with HTML for better control
+kpi_html = f"""
+<table class="kpi-table">
+    <thead>
+        <tr>
+            <th>REVENUE</th>
+            <th>EBIT MARGIN</th>
+            <th>PAYBACK</th>
+            <th>OCF</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>${pnl['Revenue']:.1f}B</td>
+            <td>{pnl['EBIT Margin']*100:.1f}%</td>
+            <td>{payback_years:.1f}yr</td>
+            <td>${operating_cf:.1f}B</td>
+        </tr>
+    </tbody>
+</table>
+"""
 
-with kpi2:
-    st.metric(
-        "EBIT Margin",
-        f"{pnl['EBIT Margin']*100:.1f}%",
-        help="Operating profit margin"
-    )
-
-with kpi3:
-    st.metric(
-        "Payback",
-        f"{payback_years:.1f}yr",
-        help="Years to recover investment"
-    )
-
-with kpi4:
-    st.metric(
-        "OCF",
-        f"${operating_cf:.1f}B",
-        help="Operating cash flow"
-    )
+st.markdown(kpi_html, unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
 # CONTROL PANEL SECTION
+st.markdown('<div id="control-panel"></div>', unsafe_allow_html=True)
 st.markdown("## ⚙️ Adjust Assumptions")
-
-col_reset1, col_reset2 = st.columns([3, 1])
-with col_reset2:
-    if st.button("🔄 Reset to Defaults", use_container_width=True, type="secondary"):
-        reset_to_defaults()
-        st.rerun()
 
 with st.expander("💰 **Capacity & Capital**", expanded=False):
     col1, col2 = st.columns(2)
@@ -510,9 +592,41 @@ with st.expander("📉 **Depreciation & Tax**", expanded=False):
             key="projection_years"
         )
 
+# Action buttons below all controls
+st.markdown("<br>", unsafe_allow_html=True)
+col_btn1, col_btn2 = st.columns(2)
+
+with col_btn1:
+    if st.button("🔄 Reset to Defaults", use_container_width=True, type="secondary"):
+        reset_to_defaults()
+        st.rerun()
+
+with col_btn2:
+    st.markdown("""
+    <a href="#financials" style="text-decoration: none;">
+        <button style="
+            width: 100%;
+            padding: 0.5rem 1rem;
+            background-color: #0068C9;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        " onmouseover="this.style.backgroundColor='#0056b3'" onmouseout="this.style.backgroundColor='#0068C9'">
+            📊 Go to Financials
+        </button>
+    </a>
+    """, unsafe_allow_html=True)
+
 st.markdown("---")
 
 # RESULTS TABS
+st.markdown('<div id="financials"></div>', unsafe_allow_html=True)
+
 tab1, tab2, tab3, tab4 = st.tabs([
     "📊 P&L Analysis", 
     "💰 Cash Flow", 

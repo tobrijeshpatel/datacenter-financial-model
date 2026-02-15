@@ -35,21 +35,6 @@ st.markdown("""
         max-width: 1200px;
     }
     
-    /* Remove all white backgrounds */
-    .main, .stApp {
-        background-color: white;
-    }
-    
-    [data-testid="stAppViewContainer"] {
-        background-color: white;
-    }
-    
-    /* Dark mode */
-    [data-testid="stAppViewContainer"][data-theme="dark"] .main,
-    [data-testid="stAppViewContainer"][data-theme="dark"] .stApp {
-        background-color: #0e1117;
-    }
-    
     /* Title styling */
     h1 {
         font-family: 'Inter', sans-serif;
@@ -168,24 +153,31 @@ st.markdown("""
         border: 2px solid #667eea;
     }
     
-    /* Tab panel content - transparent background */
+    /* Tab panel content - ensure proper backgrounds */
     .stTabs [data-baseweb="tab-panel"] {
-        background-color: transparent;
+        background-color: transparent !important;
         padding: 1rem 0;
     }
     
-    /* Dataframe backgrounds */
+    /* Ensure content areas don't have white backgrounds */
+    .stTabs [data-baseweb="tab-panel"] > div {
+        background-color: transparent !important;
+    }
+    
+    /* Dataframe styling */
     [data-testid="stDataFrame"] {
-        background-color: transparent;
-    }
-    
-    /* Chart backgrounds */
-    .js-plotly-plot {
         background-color: transparent !important;
     }
     
-    .plotly {
-        background-color: transparent !important;
+    [data-testid="stDataFrame"] > div {
+        background-color: white;
+        border-radius: 8px;
+        padding: 0.5rem;
+    }
+    
+    /* Dark mode for dataframes */
+    [data-testid="stAppViewContainer"][data-theme="dark"] [data-testid="stDataFrame"] > div {
+        background-color: #1e1e1e;
     }
     
     /* Smooth scrolling */
@@ -273,6 +265,18 @@ st.markdown("""
         .stTabs [data-baseweb="tab"] {
             font-size: 14px;
             padding: 8px 12px;
+        }
+        
+        /* Ensure header table stays in one row */
+        table td {
+            display: table-cell !important;
+        }
+        
+        /* Adjust button on mobile */
+        table td button {
+            font-size: 0.85rem !important;
+            padding: 0.6rem 1rem !important;
+            min-width: 140px !important;
         }
     }
 </style>
@@ -459,33 +463,43 @@ st.markdown('</div>', unsafe_allow_html=True)
 # CONTROL PANEL SECTION
 st.markdown('<div id="control-panel"></div>', unsafe_allow_html=True)
 
-# Header with button
-col_header1, col_header2 = st.columns([3, 1])
-with col_header1:
-    st.markdown("## ⚙️ Adjust Assumptions")
-with col_header2:
-    st.markdown("""
-    <a href="#financials" style="text-decoration: none;">
-        <button style="
-            width: 100%;
-            padding: 0.6rem 1rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-            margin-top: 0.5rem;
-        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)'" 
-           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(102, 126, 234, 0.3)'">
-            📊 Go to Financials
-        </button>
-    </a>
-    """, unsafe_allow_html=True)
+# Header with button in table format for consistent layout
+header_html = """
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 1rem;">
+    <tr>
+        <td style="width: 70%; vertical-align: middle; padding: 0;">
+            <h2 style="margin: 0; padding: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.8rem;">
+                ⚙️ Adjust Assumptions
+            </h2>
+        </td>
+        <td style="width: 30%; vertical-align: middle; padding: 0; text-align: right;">
+            <a href="#financials" style="text-decoration: none;">
+                <button style="
+                    width: 100%;
+                    min-width: 180px;
+                    padding: 0.75rem 1.5rem;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-family: 'Inter', sans-serif;
+                    font-weight: 600;
+                    font-size: 1rem;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+                    white-space: nowrap;
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)'" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(102, 126, 234, 0.3)'">
+                    📊 Go to Financials
+                </button>
+            </a>
+        </td>
+    </tr>
+</table>
+"""
+
+st.markdown(header_html, unsafe_allow_html=True)
 
 with st.expander("💰 **Capacity & Capital**", expanded=False):
     col1, col2 = st.columns(2)

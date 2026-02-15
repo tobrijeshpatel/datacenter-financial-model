@@ -56,34 +56,20 @@ st.markdown("""
         line-height: 1.6;
         color: #4a5568;
         margin-bottom: 0.25rem !important;
- 
-    /* Sticky KPI Table - FORCE sticky */
-.sticky-kpi {
-    position: -webkit-sticky !important;
-    position: sticky !important;
-    top: 3.5rem !important;
-    z-index: 998 !important;
-    background: white !important;
-    padding: 0.5rem 0 !important;
-    margin: 0 0 1rem 0 !important;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
-}
 
-/* Ensure parent container allows sticking */
-.main .block-container {
-    position: relative !important;
-    overflow: visible !important;
-}
+        /* Sticky KPI Table - Use sticky properly within Streamlit */
+    .sticky-kpi {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 3.5rem;
+        z-index: 998;
+        background: white;
+        padding: 0.5rem 0;
+        margin: 0 0 1rem 0;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
 
-/* Dark mode */
-[data-testid="stAppViewContainer"][data-theme="dark"] .sticky-kpi {
-    background: #0e1117 !important;
-}
-
-
-
-
-    
+        
     /* KPI Table */
     .kpi-table {
         width: 100%;

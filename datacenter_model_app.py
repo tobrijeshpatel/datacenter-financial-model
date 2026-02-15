@@ -53,20 +53,18 @@ st.markdown("""
     
     /* Sticky KPI Table */
     .sticky-kpi {
+        position: -webkit-sticky;
         position: sticky;
-        top: 0;
+        top: 3.5rem;
         background-color: white;
         z-index: 999;
-        padding: 1.5rem 0;
-        margin: 2rem 0 2rem 0;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border-radius: 12px;
+        padding: 0 0 1.5rem 0;
+        margin: 0 0 1.5rem 0;
     }
     
     /* Dark mode support for sticky KPI */
     [data-testid="stAppViewContainer"][data-theme="dark"] .sticky-kpi {
         background-color: #0e1117;
-        box-shadow: 0 2px 8px rgba(255,255,255,0.1);
     }
     
     /* KPI Table styling */
@@ -129,47 +127,71 @@ st.markdown("""
         font-size: 1.3rem;
     }
     
-    /* Tab styling - dark grey theme */
+    /* Tab styling - purple theme */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
-        background-color: #262730;
+        background-color: #f7f7f7;
         padding: 10px;
         border-radius: 10px;
     }
     
     .stTabs [data-baseweb="tab"] {
         height: 50px;
-        background-color: #3d3d4a;
-        color: white;
+        background-color: #e9e9f0;
+        color: #4a4a6a;
         border-radius: 8px;
         padding: 10px 20px;
         font-family: 'Inter', sans-serif;
         font-weight: 600;
         font-size: 16px;
-        border: 2px solid #3d3d4a;
+        border: 2px solid #e9e9f0;
     }
     
     .stTabs [aria-selected="true"] {
-        background-color: #0068C9;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        border: 2px solid #0068C9;
+        border: 2px solid #667eea;
     }
     
-    /* Expander styling */
+    /* Expander styling - transparent background */
     .streamlit-expanderHeader {
         font-family: 'Inter', sans-serif;
         font-weight: 600;
         font-size: 1.1rem;
-        background-color: #f7fafc;
+        background-color: transparent;
         border-radius: 8px;
         padding: 12px;
+        color: #2d3748;
     }
     
     [data-testid="stExpander"] {
         border: 1px solid #e2e8f0;
         border-radius: 10px;
         margin-bottom: 1rem;
-        background-color: white;
+        background-color: transparent;
+    }
+    
+    /* Expander content background */
+    [data-testid="stExpander"] > div > div {
+        background-color: transparent;
+    }
+    
+    /* Slider styling - purple theme */
+    .stSlider > div > div > div > div {
+        background-color: #667eea;
+    }
+    
+    .stSlider > div > div > div {
+        background-color: rgba(102, 126, 234, 0.2);
+    }
+    
+    /* Slider thumb */
+    input[type="range"]::-webkit-slider-thumb {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    input[type="range"]::-moz-range-thumb {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
     
     /* Input labels */
@@ -256,7 +278,7 @@ Analyze the financial viability of AI infrastructure investments with real-time 
 cash flow projections, and payback calculations.
 """)
 
-# Get all input values
+# Get all input values FIRST
 capacity_gw = st.session_state.capacity_gw
 capital_cost_per_gw = st.session_state.capital_cost_per_gw
 gpu_nw_pct_display = st.session_state.gpu_nw_pct
@@ -391,7 +413,34 @@ st.markdown('</div>', unsafe_allow_html=True)
 
 # CONTROL PANEL SECTION
 st.markdown('<div id="control-panel"></div>', unsafe_allow_html=True)
-st.markdown("## ⚙️ Adjust Assumptions")
+
+# Header with button
+col_header1, col_header2 = st.columns([3, 1])
+with col_header1:
+    st.markdown("## ⚙️ Adjust Assumptions")
+with col_header2:
+    st.markdown("""
+    <a href="#financials" style="text-decoration: none;">
+        <button style="
+            width: 100%;
+            padding: 0.6rem 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            margin-top: 0.5rem;
+        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)'" 
+           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(102, 126, 234, 0.3)'">
+            📊 Go to Financials
+        </button>
+    </a>
+    """, unsafe_allow_html=True)
 
 with st.expander("💰 **Capacity & Capital**", expanded=False):
     col1, col2 = st.columns(2)
@@ -594,33 +643,10 @@ with st.expander("📉 **Depreciation & Tax**", expanded=False):
 
 # Action buttons below all controls
 st.markdown("<br>", unsafe_allow_html=True)
-col_btn1, col_btn2 = st.columns(2)
 
-with col_btn1:
-    if st.button("🔄 Reset to Defaults", use_container_width=True, type="secondary"):
-        reset_to_defaults()
-        st.rerun()
-
-with col_btn2:
-    st.markdown("""
-    <a href="#financials" style="text-decoration: none;">
-        <button style="
-            width: 100%;
-            padding: 0.5rem 1rem;
-            background-color: #0068C9;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        " onmouseover="this.style.backgroundColor='#0056b3'" onmouseout="this.style.backgroundColor='#0068C9'">
-            📊 Go to Financials
-        </button>
-    </a>
-    """, unsafe_allow_html=True)
+if st.button("🔄 Reset to Defaults", use_container_width=True, type="secondary"):
+    reset_to_defaults()
+    st.rerun()
 
 st.markdown("---")
 

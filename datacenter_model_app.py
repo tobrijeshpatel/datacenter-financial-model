@@ -51,20 +51,35 @@ st.markdown("""
         color: #4a5568;
     }
     
-    /* Sticky KPI Table */
+    /* Sticky KPI Table - FIXED positioning */
     .sticky-kpi {
-        position: -webkit-sticky;
-        position: sticky;
+        position: fixed;
         top: 3.5rem;
+        left: 0;
+        right: 0;
         background-color: white;
-        z-index: 999;
-        padding: 0;
-        margin: 0 0 1.5rem 0;
+        z-index: 998;
+        padding: 0 1rem;
+        margin: 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     
     /* Dark mode support for sticky KPI */
     [data-testid="stAppViewContainer"][data-theme="dark"] .sticky-kpi {
         background-color: #0e1117;
+        box-shadow: 0 2px 8px rgba(255,255,255,0.1);
+    }
+    
+    /* Add padding to content to account for fixed header */
+    .main .block-container {
+        padding-top: 2rem;
+    }
+    
+    /* KPI table itself - constrain width */
+    .kpi-table-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem 0;
     }
     
     /* KPI Table styling */
@@ -153,31 +168,27 @@ st.markdown("""
         border: 2px solid #667eea;
     }
     
-    /* Tab panel content - ensure proper backgrounds */
+    /* Tab panel content - normal background */
     .stTabs [data-baseweb="tab-panel"] {
-        background-color: transparent !important;
-        padding: 1rem 0;
+        padding: 1.5rem 0;
     }
     
-    /* Ensure content areas don't have white backgrounds */
+    /* Remove extra margins/padding that create white space */
     .stTabs [data-baseweb="tab-panel"] > div {
-        background-color: transparent !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
     
-    /* Dataframe styling */
+    /* Dataframe styling - clean cards */
     [data-testid="stDataFrame"] {
-        background-color: transparent !important;
-    }
-    
-    [data-testid="stDataFrame"] > div {
-        background-color: white;
         border-radius: 8px;
-        padding: 0.5rem;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     
     /* Dark mode for dataframes */
-    [data-testid="stAppViewContainer"][data-theme="dark"] [data-testid="stDataFrame"] > div {
-        background-color: #1e1e1e;
+    [data-testid="stAppViewContainer"][data-theme="dark"] [data-testid="stDataFrame"] {
+        box-shadow: 0 1px 3px rgba(255,255,255,0.1);
     }
     
     /* Smooth scrolling */
@@ -324,7 +335,7 @@ def reset_to_defaults():
 st.title("🏢 Data Center Unit Economics Model")
 st.markdown("""
 Analyze the financial viability of AI infrastructure investments with real-time P&L, 
-cash flow projections, and payback calculations.
+cash flow projections, and payback calculations. **Model is running at default assumptions - change them and analyze.**
 """, unsafe_allow_html=True)
 
 # Get all input values FIRST
@@ -433,7 +444,7 @@ cash_flows, cumulative_cf, payback_years, operating_cf = calculate_cash_flows(
     pnl, capital_cost_per_gw, capacity_gw, tax_rate, projection_years)
 
 # STICKY KPI TABLE
-st.markdown('<div class="sticky-kpi">', unsafe_allow_html=True)
+st.markdown('<div class="sticky-kpi"><div class="kpi-table-wrapper">', unsafe_allow_html=True)
 
 # Create KPI table with HTML for better control
 kpi_html = f"""
@@ -458,7 +469,10 @@ kpi_html = f"""
 """
 
 st.markdown(kpi_html, unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('</div></div>', unsafe_allow_html=True)
+
+# Add spacer to push content below fixed header
+st.markdown('<div style="height: 140px;"></div>', unsafe_allow_html=True)
 
 # CONTROL PANEL SECTION
 st.markdown('<div id="control-panel"></div>', unsafe_allow_html=True)
@@ -468,8 +482,8 @@ header_html = """
 <table style="width: 100%; border-collapse: collapse; margin-bottom: 1rem;">
     <tr>
         <td style="width: 70%; vertical-align: middle; padding: 0;">
-            <h2 style="margin: 0; padding: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.8rem;">
-                ⚙️ Adjust Assumptions
+            <h2 style="margin: 0; padding: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.5rem;">
+                ⚙️ Adjust Assumptions ⬇️
             </h2>
         </td>
         <td style="width: 30%; vertical-align: middle; padding: 0; text-align: right;">

@@ -673,7 +673,7 @@ st.markdown('<div id="financials" style="position: relative; top: -150px;"></div
 tab1, tab2, tab3, tab4 = st.tabs([
     "📊 P&L Analysis", 
     "💰 Cash Flow", 
-    "📋 Default assumptions",
+    "📋 Assumptions",
     "📈 Summary"
 ])
 

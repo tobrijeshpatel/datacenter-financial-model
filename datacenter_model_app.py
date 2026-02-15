@@ -103,7 +103,22 @@ if 'current_values' not in st.session_state:
 
 # Function to reset to defaults
 def reset_to_defaults():
+    # Reset current values
     st.session_state.current_values = st.session_state.defaults.copy()
+    
+    # Clear all widget keys to force re-render with new values
+    keys_to_delete = [
+        'capacity_gw_input', 'capital_cost_input', 'gpu_nw_input',
+        'revenue_input', 'utilization_input', 'power_cost_input', 'pue_input',
+        'baseline_power_input', 'idle_power_input', 'sga_input', 'maintenance_input',
+        'property_tax_input', 'staffing_input', 'network_input', 'software_input',
+        'dep_gpu_input', 'dep_other_input', 'tax_rate_input', 'projection_input'
+    ]
+    
+    for key in keys_to_delete:
+        if key in st.session_state:
+            del st.session_state[key]
+    
     st.rerun()
 
 # Title and description
@@ -116,7 +131,7 @@ with col_intro1:
     Adjust the key assumptions in the sidebar to see real-time impact on P&L and cash flows.
     """)
 with col_intro2:
-    st.info("👈 **Control Panel**  \nAdjust settings in sidebar")
+    st.info("👈 Adjust assumptions  \nin sidebar")
     
 
 # Sidebar for inputs
@@ -393,7 +408,7 @@ def calculate_pnl(capacity_gw, revenue_per_gw, utilization, power_cost_per_kwh, 
     
     # Depreciation
     depreciation = (capital_cost_per_gw * gpu_nw_pct / depreciation_gpu_nw + 
-                   capital_cost_per_gw * (1 - gpu_nw_pct) / depreciation_other)
+                   capital_cost_per_gw * (1 - gpu_nw_pct) / depreciation_other) * capacity_gw
     
     # EBIT
     ebit = revenue - total_power - sga - other_opex - property_tax - depreciation

@@ -51,35 +51,34 @@ st.markdown("""
         color: #4a5568;
     }
     
-    /* Sticky KPI Table - FIXED positioning */
+    /* Sticky KPI Table - Use sticky properly within Streamlit */
     .sticky-kpi {
-        position: fixed;
+        position: -webkit-sticky;
+        position: sticky;
         top: 3.5rem;
-        left: 0;
-        right: 0;
-        background-color: white;
         z-index: 998;
-        padding: 0 1rem;
-        margin: 0;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        background: white;
+        padding: 0.5rem 0;
+        margin: 0 0 1rem 0;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     
-    /* Dark mode support for sticky KPI */
+    /* Dark mode */
     [data-testid="stAppViewContainer"][data-theme="dark"] .sticky-kpi {
-        background-color: #0e1117;
-        box-shadow: 0 2px 8px rgba(255,255,255,0.1);
+        background: #0e1117;
+        box-shadow: 0 4px 6px rgba(255,255,255,0.1);
     }
     
-    /* Add padding to content to account for fixed header */
+    /* Ensure parent allows sticking */
     .main .block-container {
-        padding-top: 2rem;
+        position: relative;
+        overflow: visible !important;
     }
     
-    /* KPI table itself - constrain width */
+    /* KPI table wrapper */
     .kpi-table-wrapper {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 1rem 0;
+        width: 100%;
+        max-width: 100%;
     }
     
     /* KPI Table styling */
@@ -168,27 +167,39 @@ st.markdown("""
         border: 2px solid #667eea;
     }
     
-    /* Tab panel content - normal background */
+    /* Tab panel content - dark background */
     .stTabs [data-baseweb="tab-panel"] {
-        padding: 1.5rem 0;
+        padding: 1.5rem;
+        background-color: #1a1a1a;
+        border-radius: 0 0 10px 10px;
+        margin-top: -2px;
     }
     
-    /* Remove extra margins/padding that create white space */
+    /* Remove extra margins/padding */
     .stTabs [data-baseweb="tab-panel"] > div {
         padding: 0 !important;
         margin: 0 !important;
     }
     
-    /* Dataframe styling - clean cards */
+    /* Dataframe styling - clean cards on dark background */
     [data-testid="stDataFrame"] {
         border-radius: 8px;
         overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        background-color: white;
     }
     
-    /* Dark mode for dataframes */
-    [data-testid="stAppViewContainer"][data-theme="dark"] [data-testid="stDataFrame"] {
-        box-shadow: 0 1px 3px rgba(255,255,255,0.1);
+    /* Chart containers */
+    .js-plotly-plot, .plotly {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+    
+    /* Text on dark background should be light */
+    .stTabs [data-baseweb="tab-panel"] h3,
+    .stTabs [data-baseweb="tab-panel"] p,
+    .stTabs [data-baseweb="tab-panel"] .markdown-text-container {
+        color: white !important;
     }
     
     /* Smooth scrolling */
@@ -470,9 +481,6 @@ kpi_html = f"""
 
 st.markdown(kpi_html, unsafe_allow_html=True)
 st.markdown('</div></div>', unsafe_allow_html=True)
-
-# Add spacer to push content below fixed header
-st.markdown('<div style="height: 140px;"></div>', unsafe_allow_html=True)
 
 # CONTROL PANEL SECTION
 st.markdown('<div id="control-panel"></div>', unsafe_allow_html=True)

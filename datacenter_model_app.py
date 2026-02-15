@@ -57,19 +57,18 @@ st.markdown("""
         color: #4a5568;
         margin-bottom: 0.25rem !important;
 
-        /* Sticky KPI Table - Use sticky properly within Streamlit */
+       
+   /* Sticky KPI Table - NO white background */
     .sticky-kpi {
         position: -webkit-sticky;
         position: sticky;
         top: 3.5rem;
         z-index: 998;
-        background: white;
-        padding: 0.5rem 0;
-        margin: 0 0 1rem 0;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        background: transparent !important;
+        padding: 0 !important;
+        margin: 0.5rem 0 1rem 0 !important;
     }
 
-        
     /* KPI Table */
     .kpi-table {
         width: 100%;

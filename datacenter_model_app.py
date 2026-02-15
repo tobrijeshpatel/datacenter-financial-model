@@ -426,7 +426,7 @@ header_html = """
 <table style="width: 100%; border-collapse: collapse; margin-bottom: 1rem;">
     <tr>
         <td style="width: 70%; vertical-align: middle; padding: 0;">
-            <h2 style="margin: 0; padding: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.5rem;">
+            <h2 style="margin: 0; padding: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.2rem;">
                 ⚙️ Adjust Assumptions ⬇️
             </h2>
         </td>
@@ -673,7 +673,7 @@ st.markdown('<div id="financials" style="position: relative; top: -150px;"></div
 tab1, tab2, tab3, tab4 = st.tabs([
     "📊 P&L Analysis", 
     "💰 Cash Flow", 
-    "📋 Assumptions",
+    "📋 Default assumptions",
     "📈 Summary"
 ])
 

@@ -56,9 +56,9 @@ st.markdown("""
         line-height: 1.6;
         color: #4a5568;
         margin-bottom: 0.25rem !important;
-
-       
-   /* Sticky KPI Table - NO white background */
+    }
+    
+    /* Sticky KPI Table - NO white background */
     .sticky-kpi {
         position: -webkit-sticky;
         position: sticky;
@@ -68,7 +68,7 @@ st.markdown("""
         padding: 0 !important;
         margin: 0.5rem 0 1rem 0 !important;
     }
-
+    
     /* KPI Table */
     .kpi-table {
         width: 100%;

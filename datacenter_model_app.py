@@ -35,6 +35,21 @@ st.markdown("""
         max-width: 1200px;
     }
     
+    /* Remove all white backgrounds */
+    .main, .stApp {
+        background-color: white;
+    }
+    
+    [data-testid="stAppViewContainer"] {
+        background-color: white;
+    }
+    
+    /* Dark mode */
+    [data-testid="stAppViewContainer"][data-theme="dark"] .main,
+    [data-testid="stAppViewContainer"][data-theme="dark"] .stApp {
+        background-color: #0e1117;
+    }
+    
     /* Title styling */
     h1 {
         font-family: 'Inter', sans-serif;
@@ -58,7 +73,7 @@ st.markdown("""
         top: 3.5rem;
         background-color: white;
         z-index: 999;
-        padding: 0 0 1.5rem 0;
+        padding: 0;
         margin: 0 0 1.5rem 0;
     }
     
@@ -151,6 +166,32 @@ st.markdown("""
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         border: 2px solid #667eea;
+    }
+    
+    /* Tab panel content - transparent background */
+    .stTabs [data-baseweb="tab-panel"] {
+        background-color: transparent;
+        padding: 1rem 0;
+    }
+    
+    /* Dataframe backgrounds */
+    [data-testid="stDataFrame"] {
+        background-color: transparent;
+    }
+    
+    /* Chart backgrounds */
+    .js-plotly-plot {
+        background-color: transparent !important;
+    }
+    
+    .plotly {
+        background-color: transparent !important;
+    }
+    
+    /* Smooth scrolling */
+    html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 200px;
     }
     
     /* Expander styling - transparent background */
@@ -268,15 +309,19 @@ for key, value in st.session_state.defaults.items():
 
 # Function to reset to defaults
 def reset_to_defaults():
-    for key, value in st.session_state.defaults.items():
-        st.session_state[key] = value
+    # Delete all widget keys to allow them to reinitialize with default values
+    keys_to_delete = list(st.session_state.defaults.keys())
+    for key in keys_to_delete:
+        if key in st.session_state:
+            del st.session_state[key]
+    # Session state will reinitialize with defaults on rerun
 
 # Header
 st.title("🏢 Data Center Unit Economics Model")
 st.markdown("""
 Analyze the financial viability of AI infrastructure investments with real-time P&L, 
 cash flow projections, and payback calculations.
-""")
+""", unsafe_allow_html=True)
 
 # Get all input values FIRST
 capacity_gw = st.session_state.capacity_gw
@@ -650,8 +695,8 @@ if st.button("🔄 Reset to Defaults", use_container_width=True, type="secondary
 
 st.markdown("---")
 
-# RESULTS TABS
-st.markdown('<div id="financials"></div>', unsafe_allow_html=True)
+# RESULTS TABS - Add anchor with offset
+st.markdown('<div id="financials" style="position: relative; top: -150px;"></div>', unsafe_allow_html=True)
 
 tab1, tab2, tab3, tab4 = st.tabs([
     "📊 P&L Analysis", 

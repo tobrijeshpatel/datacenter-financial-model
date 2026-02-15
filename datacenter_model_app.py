@@ -46,7 +46,7 @@ st.markdown("""
     }
     
     /* Control panel button styling */
-    .stButton > button[kind="primary"] {
+    .stButton > button {
         font-size: 16px;
         font-weight: 600;
         padding: 10px 20px;
@@ -109,24 +109,21 @@ def reset_to_defaults():
 # Title and description
 st.title("🏢 Data Center Unit Economics Model")
 
-col_intro1, col_intro2 = st.columns([4, 1])
+col_intro1, col_intro2 = st.columns([3, 1])
 with col_intro1:
     st.markdown("""
     This interactive model helps you analyze the financial viability of a data center investment.
     Adjust the key assumptions in the sidebar to see real-time impact on P&L and cash flows.
     """)
 with col_intro2:
-    st.markdown("") # Spacer
-    if st.button("⚙️ Open Control Panel", type="primary", use_container_width=True):
-        st.sidebar.success("👈 Control panel is on the left!")
-        st.rerun()
+    st.info("👈 **Control Panel**  \nAdjust settings in sidebar")
+    
 
 # Sidebar for inputs
 st.sidebar.markdown("### 📊 Control Panel")
-st.sidebar.info("📱 **Mobile users:** Swipe from left edge or click 'Open Control Panel' button")
 
 # Reset button at the top of sidebar
-if st.sidebar.button("🔄 Reset to Defaults", use_container_width=True, type="primary"):
+if st.sidebar.button("🔄 Reset to Defaults", use_container_width=True, type="secondary"):
     reset_to_defaults()
 
 st.sidebar.markdown("---")
@@ -632,13 +629,14 @@ with tab2:
     
     st.plotly_chart(fig_cf, use_container_width=True)
     
-    # IRR calculation
+    # IRR calculation - only show if successful
     try:
         cf_for_irr = [-capital_cost_per_gw * capacity_gw] + [operating_cf] * projection_years
         irr = np.irr(cf_for_irr)
-        st.info(f"**Internal Rate of Return (IRR):** {irr*100:.2f}%")
+        if not np.isnan(irr) and np.isfinite(irr):
+            st.info(f"**Internal Rate of Return (IRR):** {irr*100:.2f}%")
     except:
-        st.warning("Unable to calculate IRR with current assumptions")
+        pass  # Silently skip if IRR cannot be calculated
 
 with tab3:
     st.subheader("Current Assumptions Summary")
@@ -767,24 +765,48 @@ with tab4:
     
     insights = []
     
+    # Profitability insights
     if pnl['EBIT Margin'] > 0.3:
         insights.append("✅ Strong profitability with EBIT margin above 30%")
     elif pnl['EBIT Margin'] < 0.1:
         insights.append("⚠️ Low profitability - consider optimizing costs or increasing utilization")
+    else:
+        insights.append(f"📊 EBIT margin of {pnl['EBIT Margin']*100:.1f}% is moderate")
     
+    # Payback insights
     if payback_years <= 5:
         insights.append("✅ Attractive payback period under 5 years")
     elif payback_years > 10:
         insights.append("⚠️ Long payback period - may need to improve economics")
+    else:
+        insights.append(f"📊 Payback period of {payback_years:.1f} years is reasonable for infrastructure")
     
-    if pnl['Power Cost'] / pnl['Revenue'] > 0.4:
-        insights.append("⚠️ Power costs are high - consider power optimization or PPA strategies")
+    # Power cost insights
+    power_pct = (pnl['Power Cost'] / pnl['Revenue']) * 100
+    if power_pct > 40:
+        insights.append(f"⚠️ Power costs are high at {power_pct:.1f}% of revenue - consider power optimization or PPA strategies")
+    elif power_pct < 10:
+        insights.append(f"✅ Excellent power efficiency at {power_pct:.1f}% of revenue")
     
+    # Utilization insights (utilization is already decimal 0-1)
     if utilization < 0.6:
-        insights.append("💡 Low utilization - improving to 70%+ could significantly boost returns")
+        insights.append(f"💡 Current utilization at {utilization*100:.0f}% - improving to 70%+ could significantly boost returns")
+    elif utilization >= 0.75:
+        insights.append(f"✅ Strong utilization at {utilization*100:.0f}%")
     
-    for insight in insights:
-        st.markdown(f"- {insight}")
+    # Capital efficiency insight
+    revenue_per_capex = pnl['Revenue'] / (capital_cost_per_gw * capacity_gw)
+    if revenue_per_capex > 0.3:
+        insights.append(f"✅ Good capital efficiency - generating ${revenue_per_capex:.2f} revenue per $1 invested")
+    elif revenue_per_capex < 0.2:
+        insights.append(f"⚠️ Low capital efficiency - only ${revenue_per_capex:.2f} revenue per $1 invested")
+    
+    # Display insights
+    if insights:
+        for insight in insights:
+            st.markdown(f"- {insight}")
+    else:
+        st.markdown("- 📊 Adjust assumptions to see insights")
 
 # Download section
 st.markdown("---")

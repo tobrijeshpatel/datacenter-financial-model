@@ -281,8 +281,8 @@ def reset_to_defaults():
 # Header
 st.title("🏢 Data Center Unit Economics Model")
 st.markdown("""
-Analyze the financial viability of AI infrastructure investments with real-time P&L, 
-cash flow projections, and payback calculations. **Model is running at default assumptions - change them and analyze.**
+Analyze the financial viability of AI Data center with real-time P&L, 
+cash flow projections, and payback calculations. Change default assumptions and analyze.
 """, unsafe_allow_html=True)
 
 # Get all input values FIRST
